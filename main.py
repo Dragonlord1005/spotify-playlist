@@ -22,16 +22,14 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=client_id,
 # Retrieve all r/Maliciouscompliance episodes
 show_id = 'spotify:show:3hJo9o8qFqrblXu1Plkv8L'
 episode_uris = []
-
-# Loop through all offsets and retrieve episodes
 for offset in range(5):
-    results = sp.show_episodes(show_id=show_id, market='US', limit=50, offset=offset)
-    print("Another 50 episodes retrieved, current offset is " + str(offset) + ".")
-
-    # Filter out non r/Maliciouscompliance episodes and retrieve their URIs
+    results = sp.show_episodes(show_id=show_id, market='US', limit=50, offset=offset*50)
     for item in results['items']:
         if item['name'].startswith('r/Maliciouscompliance'):
-            episode_uris.append(item['uri'])
+            episode_uri = item['uri']
+            # Check if episode URI is already in the playlist
+            if episode_uri not in episode_uris:
+                episode_uris.append(episode_uri)
 
 # Check if playlist already exists, and create it if it doesn't
 playlist_name = 'r/MaliciousCompliance Episodes'
@@ -59,5 +57,3 @@ if new_track_uris:
 playlist_length = len(existing_tracks) + len(new_track_uris)
 if playlist_length > 1:
     sp.playlist_reorder_items(playlist_id, range_start=0, insert_before=1, range_length=playlist_length)
-
-
