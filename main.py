@@ -50,6 +50,7 @@ if new_track_uris:
     sp.playlist_add_items(playlist_id, new_track_uris)
 
 # Sort playlist by oldest to newest
+# TODO: Fix not sorting correctly, or at all for that matter
 if len(existing_tracks) > 1:
     sp.playlist_reorder_items(playlist_id, range_start=0, insert_before=1, range_length=len(existing_tracks))
 
