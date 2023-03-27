@@ -58,8 +58,14 @@ if new_track_uris:
         sp.playlist_add_items(playlist_id, batch)
 
 # Sort playlist by oldest to newest
-# TODO: Fix not sorting correctly, or at all for that matter
-# Sort playlist by oldest to newest
 playlist_length = len(existing_tracks) + len(new_track_uris)
 if playlist_length > 1:
-    sp.playlist_reorder_items(playlist_id, range_start=0, insert_before=1, range_length=playlist_length)
+    # Split playlist tracks into batches of 100
+    track_batches = [existing_tracks[i:i+100] for i in range(0, len(existing_tracks), 100)]
+
+    # Reorder each batch of tracks in the playlist
+    for track_batch in track_batches:
+        track_uris = [track['track']['uri'] for track in track_batch]
+        for i in range(1, len(track_batch)):
+            current_index = track_uris.index(track_batch[i]['track']['uri'])
+            sp.playlist_reorder_items(playlist_id, range_start=current_index, insert_before=i, range_length=1)
