@@ -18,16 +18,16 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=client_id,
                                                redirect_uri=redirect_uri,
                                                scope='playlist-modify-public, playlist-modify-private, user-library-read, user-library-modify'))
 
-# Set up query to retrieve all rSlash episodes starting with r/maliciouscompliance
-query = 'r/Maliciouscompliance%artist:rSlash'
 
-# Search for episodes using query
-results = sp.search(q=query, type='episode', market='US', limit='50')
-
-# Extract episode URIs from search results
+# Retrieve all r/Maliciouscompliance episodes
+show_id = 'spotify:show:3hJo9o8qFqrblXu1Plkv8L'
+results = sp.show_episodes(show_id=show_id, market='US', limit=50)
 episode_uris = []
-for item in results['episodes']['items']:
-    episode_uris.append(item['uri'])
+
+# Filter out non r/Maliciouscompliance episodes and retrieve their URIs
+for item in results['items']:
+    if item['name'].startswith('r/Maliciouscompliance'):
+        episode_uris.append(item['uri'])
 
 # Check if playlist already exists, and create it if it doesn't
 playlist_name = 'r/MaliciousCompliance Episodes'
@@ -51,6 +51,9 @@ if new_track_uris:
 
 # Sort playlist by oldest to newest
 # TODO: Fix not sorting correctly, or at all for that matter
-if len(existing_tracks) > 1:
-    sp.playlist_reorder_items(playlist_id, range_start=0, insert_before=1, range_length=len(existing_tracks))
+# Sort playlist by oldest to newest
+playlist_length = len(existing_tracks) + len(new_track_uris)
+if playlist_length > 1:
+    sp.playlist_reorder_items(playlist_id, range_start=0, insert_before=1, range_length=playlist_length)
+
 
