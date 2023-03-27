@@ -1,6 +1,7 @@
 import os
-from dotenv import load_dotenv
+
 import spotipy
+from dotenv import load_dotenv
 from spotipy.oauth2 import SpotifyOAuth
 
 # Load environment variables from .env file
@@ -16,7 +17,7 @@ username = os.getenv('SPOTIPY_USERNAME')
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=client_id,
                                                client_secret=client_secret,
                                                redirect_uri=redirect_uri,
-                                               scope='playlist-modify-public, playlist-modify-private, user-library-read, user-library-modify'))
+                                               scope='playlist-modify-public, user-library-modify'))  # noqa: E501
 
 
 # Retrieve all r/Maliciouscompliance episodes
@@ -47,7 +48,7 @@ if not playlist_exists:
 # Add episodes to playlist, without creating duplicates
 existing_tracks = sp.playlist_tracks(playlist_id)['items']
 existing_track_uris = [track['track']['uri'] for track in existing_tracks]
-new_track_uris = [episode_uri for episode_uri in episode_uris if episode_uri not in existing_track_uris]
+new_track_uris = [episode_uri for episode_uri in episode_uris if episode_uri not in existing_track_uris]  # noqa: E501
 if new_track_uris:
     sp.playlist_add_items(playlist_id, new_track_uris)
 
@@ -56,4 +57,4 @@ if new_track_uris:
 # Sort playlist by oldest to newest
 playlist_length = len(existing_tracks) + len(new_track_uris)
 if playlist_length > 1:
-    sp.playlist_reorder_items(playlist_id, range_start=0, insert_before=1, range_length=playlist_length)
+    sp.playlist_reorder_items(playlist_id, range_start=0, insert_before=1, range_length=playlist_length)  # noqa: E501
