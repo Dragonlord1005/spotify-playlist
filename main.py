@@ -30,7 +30,7 @@ for item in results['tracks']['items']:
     track_ids.append(item['id'])
 
 # Check if playlist already exists, and create it if it doesn't
-playlist_name = 'rSlash episodes (starting with r/maliciouscompliance)'
+playlist_name = 'r/MaliciousCompliance Episodes'
 existing_playlists = sp.user_playlists(username)
 playlist_exists = False
 for playlist in existing_playlists['items']:
