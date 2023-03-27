@@ -1,10 +1,21 @@
+import os
+from dotenv import load_dotenv
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
+# Load environment variables from .env file
+load_dotenv()
+
+# Retrieve environment variables
+client_id = os.getenv('SPOTIPY_CLIENT_ID')
+client_secret = os.getenv('SPOTIPY_CLIENT_SECRET')
+redirect_uri = os.getenv('SPOTIPY_REDIRECT_URI')
+username = os.getenv('SPOTIPY_USERNAME')
+
 # Set up Spotify API authentication
-sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id='your_client_id',
-                                               client_secret='your_client_secret',
-                                               redirect_uri='your_redirect_uri',
+sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=client_id,
+                                               client_secret=client_secret,
+                                               redirect_uri=redirect_uri,
                                                scope='playlist-modify-public'))
 
 # Set up query to retrieve all rSlash episodes starting with r/maliciouscompliance
@@ -20,7 +31,7 @@ for item in results['tracks']['items']:
 
 # Check if playlist already exists, and create it if it doesn't
 playlist_name = 'rSlash episodes (starting with r/maliciouscompliance)'
-existing_playlists = sp.user_playlists('your_spotify_username')
+existing_playlists = sp.user_playlists(username)
 playlist_exists = False
 for playlist in existing_playlists['items']:
     if playlist['name'] == playlist_name:
@@ -28,7 +39,7 @@ for playlist in existing_playlists['items']:
         playlist_exists = True
         break
 if not playlist_exists:
-    new_playlist = sp.user_playlist_create('your_spotify_username', playlist_name, public=True)
+    new_playlist = sp.user_playlist_create(username, playlist_name, public=True)
     playlist_id = new_playlist['id']
 
 # Add tracks to playlist, without creating duplicates
