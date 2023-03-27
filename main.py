@@ -16,7 +16,7 @@ username = os.getenv('SPOTIPY_USERNAME')
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=client_id,
                                                client_secret=client_secret,
                                                redirect_uri=redirect_uri,
-                                               scope='playlist-modify-public'))
+                                               scope='playlist-modify-public user-library-modify playlist-modify-private'))
 
 # Set up query to retrieve all rSlash episodes starting with r/maliciouscompliance
 query = 'rSlash maliciouscompliance'
@@ -50,4 +50,9 @@ if new_track_ids:
     sp.playlist_add_items(playlist_id, new_track_ids)
     
 # Sort playlist by youngest to oldest
-sp.playlist_reorder_tracks(playlist_id, [track['track']['id'] for track in existing_tracks][::-1])
+sp.playlist_reorder_items(
+    playlist_id,
+    range_start=0,
+    insert_before=0,
+    range_length=1,
+)
