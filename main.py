@@ -16,18 +16,18 @@ username = os.getenv('SPOTIPY_USERNAME')
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=client_id,
                                                client_secret=client_secret,
                                                redirect_uri=redirect_uri,
-                                               scope='playlist-modify-public user-library-modify playlist-modify-private'))
+                                               scope='playlist-modify-public, playlist-modify-private, user-library-read, user-library-modify'))
 
 # Set up query to retrieve all rSlash episodes starting with r/maliciouscompliance
-query = 'rSlash maliciouscompliance'
+query = 'r/Maliciouscompliance%artist:rSlash'
 
-# Search for tracks using query
-results = sp.search(q=query, type='track')
+# Search for episodes using query
+results = sp.search(q=query, type='episode', market='US', limit='50')
 
-# Extract track IDs from search results
-track_ids = []
-for item in results['tracks']['items']:
-    track_ids.append(item['id'])
+# Extract episode URIs from search results
+episode_uris = []
+for item in results['episodes']['items']:
+    episode_uris.append(item['uri'])
 
 # Check if playlist already exists, and create it if it doesn't
 playlist_name = 'r/MaliciousCompliance Episodes'
@@ -42,17 +42,14 @@ if not playlist_exists:
     new_playlist = sp.user_playlist_create(username, playlist_name, public=True)
     playlist_id = new_playlist['id']
 
-# Add tracks to playlist, without creating duplicates
+# Add episodes to playlist, without creating duplicates
 existing_tracks = sp.playlist_tracks(playlist_id)['items']
-existing_track_ids = [track['track']['id'] for track in existing_tracks]
-new_track_ids = [track_id for track_id in track_ids if track_id not in existing_track_ids]
-if new_track_ids:
-    sp.playlist_add_items(playlist_id, new_track_ids)
-    
-# Sort playlist by youngest to oldest
-sp.playlist_reorder_items(
-    playlist_id,
-    range_start=0,
-    insert_before=0,
-    range_length=1,
-)
+existing_track_uris = [track['track']['uri'] for track in existing_tracks]
+new_track_uris = [episode_uri for episode_uri in episode_uris if episode_uri not in existing_track_uris]
+if new_track_uris:
+    sp.playlist_add_items(playlist_id, new_track_uris)
+
+# Sort playlist by oldest to newest
+if len(existing_tracks) > 1:
+    sp.playlist_reorder_items(playlist_id, range_start=0, insert_before=1, range_length=len(existing_tracks))
+
